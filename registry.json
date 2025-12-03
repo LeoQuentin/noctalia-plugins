@@ -10,6 +10,16 @@
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
       "minNoctaliaVersion": "3.6.0",
       "license": "MIT"
+    },
+    {
+      "id": "launcher-button",
+      "name": "Launcher Button",
+      "version": "1.0.0",
+      "author": "Noctalia Team",
+      "description": "A simple button that opens the app launcher.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "MIT"
     }
   ]
 }
