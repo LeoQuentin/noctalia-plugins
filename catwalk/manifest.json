@@ -1,7 +1,7 @@
 {
   "id": "catwalk",
   "name": "Catwalk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minNoctaliaVersion": "3.6.0",
   "author": "MannuVilasara",
   "license": "MIT",
@@ -9,12 +9,15 @@
   "description": "A cute animated cat for your bar.",
   "entryPoints": {
     "barWidget": "BarWidget.qml",
-    "panel": "Panel.qml"
+    "panel": "Panel.qml",
+    "settings": "Settings.qml"
   },
   "dependencies": {
     "plugins": []
   },
   "metadata": {
-    "defaultSettings": {}
+    "defaultSettings": {
+      "minimumThreshold": 10
+    }
   }
 }

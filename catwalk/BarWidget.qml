@@ -42,9 +42,9 @@ Rectangle {
     implicitHeight: applyUiScale ? Math.round(baseSize * Style.uiScaleRatio) : Math.round(baseSize)
 
     opacity: root.enabled ? Style.opacityFull : Style.opacityMedium
-    color: "transparent" // Removed pill background
+    color: "transparent"
     radius: Math.min((customRadius >= 0 ? customRadius : Style.iRadiusL), width / 2)
-    border.color: "transparent" // Removed border
+    border.color: "transparent"
     border.width: 0
 
     Behavior on color {
@@ -87,7 +87,7 @@ Rectangle {
 
     Timer {
         interval: Math.max(30, 200 - root.cpuUsage * 1.7)
-        running: root.isRunning && root.cpuUsage >= 10
+        running: root.isRunning && root.cpuUsage >= (pluginApi?.pluginSettings?.minimumThreshold || 10)
         repeat: true
         onTriggered: {
             root.frameIndex = (root.frameIndex + 1) % root.icons.length
@@ -96,20 +96,21 @@ Rectangle {
     
     Timer {
         interval: 400
-        running: root.isRunning && root.cpuUsage < 10
+        running: root.isRunning && root.cpuUsage < (pluginApi?.pluginSettings?.minimumThreshold || 10)
         repeat: true
         onTriggered: {
             root.idleFrameIndex = (root.idleFrameIndex + 1) % root.idleIcons.length
         }
     }
 
-    currentIconSource: (root.isRunning && root.cpuUsage >= 10) 
+    currentIconSource: (root.isRunning && root.cpuUsage >= (pluginApi?.pluginSettings?.minimumThreshold || 10)) 
                        ? Qt.resolvedUrl(root.icons[root.frameIndex]) 
                        : Qt.resolvedUrl(root.idleIcons[root.idleFrameIndex])
 
     tooltipText: {
         if (!pluginApi) return "No API";
-        var actuallyRunning = root.isRunning && root.cpuUsage >= 10;
+        var threshold = pluginApi?.pluginSettings?.minimumThreshold || 10;
+        var actuallyRunning = root.isRunning && root.cpuUsage >= threshold;
         return actuallyRunning ? (pluginApi.tr("tooltip.running") || "Running") : (pluginApi.tr("tooltip.sleeping") || "Sleeping");
     }
     

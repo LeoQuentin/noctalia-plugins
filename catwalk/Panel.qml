@@ -65,14 +65,14 @@ Item {
 
                     Timer {
                         interval: Math.max(30, 200 - SystemStatService.cpuUsage * 1.7)
-                        running: bigCatItem.isRunning && SystemStatService.cpuUsage >= 10
+                        running: bigCatItem.isRunning && SystemStatService.cpuUsage >= (root.pluginApi?.pluginSettings?.minimumThreshold || 10)
                         repeat: true
                         onTriggered: bigCatItem.frameIndex = (bigCatItem.frameIndex + 1) % bigCatItem.icons.length
                     }
                     
                     Timer {
                         interval: 400
-                        running: bigCatItem.isRunning && SystemStatService.cpuUsage < 10
+                        running: bigCatItem.isRunning && SystemStatService.cpuUsage < (root.pluginApi?.pluginSettings?.minimumThreshold || 10)
                         repeat: true
                         onTriggered: bigCatItem.idleFrameIndex = (bigCatItem.idleFrameIndex + 1) % bigCatItem.idleIcons.length
                     }
@@ -80,7 +80,7 @@ Item {
                     Image {
                         id: bigCatImage
                         anchors.fill: parent
-                        source: (bigCatItem.isRunning && SystemStatService.cpuUsage >= 10) 
+                        source: (bigCatItem.isRunning && SystemStatService.cpuUsage >= (root.pluginApi?.pluginSettings?.minimumThreshold || 10)) 
                                 ? Qt.resolvedUrl(bigCatItem.icons[bigCatItem.frameIndex]) 
                                 : Qt.resolvedUrl(bigCatItem.idleIcons[bigCatItem.idleFrameIndex])
                         fillMode: Image.PreserveAspectFit
