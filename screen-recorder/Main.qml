@@ -203,6 +203,12 @@ Item {
         killTimer.running = true
     }
 
+    // Helper function to truncate text for toast display
+    function truncateForToast(text, maxLength = 128) {
+        if (text.length <= maxLength) return text
+        return text.substring(0, maxLength) + "…"
+    }
+
     // Helper function to check if output indicates user cancellation
     function isCancelledByUser(stdoutText, stderrText) {
         const stdout = String(stdoutText || "").toLowerCase()
@@ -238,7 +244,7 @@ Item {
                 // But don't show error if user intentionally cancelled via portal
                 if (exitCode !== 0) {
                     if (stderr.length > 0 && !wasCancelled) {
-                        ToastService.showError(I18n.tr("toast.recording.failed-start"), stderr)
+                        ToastService.showError(I18n.tr("toast.recording.failed-start"), truncateForToast(stderr))
                         Logger.e("GPUScreenRecorder", stderr)
                     }
                 }
@@ -255,7 +261,7 @@ Item {
                     // Don't show error if user intentionally cancelled
                     if (!wasCancelled) {
                         if (stderr.length > 0) {
-                            ToastService.showError(I18n.tr("toast.recording.failed-start"), stderr)
+                            ToastService.showError(I18n.tr("toast.recording.failed-start"), truncateForToast(stderr))
                             Logger.e("GPUScreenRecorder", stderr)
                         } else {
                             ToastService.showError(I18n.tr("toast.recording.failed-start"), I18n.tr("toast.recording.failed-general"))
