@@ -6,6 +6,10 @@
   "author": "blacku",
   "license": "MIT",
   "description": "Dynamic keyboard shortcuts cheatsheet that reads and displays Hyprland keybindings. Requires Hyprland window manager.",
+  "tags": [
+    "Utility",
+    "Hyprland"
+  ],
   "entryPoints": {
     "main": "Main.qml",
     "barWidget": "BarWidget.qml",
@@ -16,7 +20,7 @@
   },
   "metadata": {
     "defaultSettings": {
-      "parsedData": [] 
+      "parsedData": []
     }
   }
 }
