@@ -254,6 +254,21 @@
       "lastUpdated": "2026-01-09T17:16:38+01:00"
     },
     {
+      "id": "screenshot",
+      "name": "Screenshot",
+      "version": "1.0.0",
+      "author": "Cleboost",
+      "description": "Quick screenshot button in bar using hyprshot",
+      "repository": "https://github.com/cleboost/noctalia-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Utility"
+      ],
+      "lastUpdated": "2026-01-14T20:38:55+01:00"
+    },
+    {
       "id": "simple-notes",
       "name": "Simple Notes",
       "version": "1.0.2",
