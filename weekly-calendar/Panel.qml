@@ -132,7 +132,7 @@ Item {
                         }
                         NIconButton {
                             icon: "close"; tooltipText: I18n.tr("common.close")
-                            onClicked: pluginApi.closePanel()
+                            onClicked: pluginApi.closePanel(pluginApi.panelOpenScreen)
                         }
                     }
                 }
