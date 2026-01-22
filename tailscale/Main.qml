@@ -11,7 +11,6 @@ Item {
 
   onPluginApiChanged: {
     if (pluginApi) {
-      Logger.i("Tailscale", "pluginApi available, loading settings")
       settingsVersion++
     }
   }
@@ -34,7 +33,6 @@ Item {
     showIpAddress = _computeShowIpAddress()
     showPeerCount = _computeShowPeerCount()
     updateTimer.interval = refreshInterval
-    Logger.i("Tailscale", "Settings updated: refreshInterval=" + refreshInterval + ", compactMode=" + compactMode)
   }
 
   property bool tailscaleInstalled: false
@@ -52,7 +50,6 @@ Item {
     stderr: StdioCollector {}
 
     onExited: function(exitCode, exitStatus) {
-      Logger.d("Tailscale", "whichProcess exited with code: " + exitCode)
       root.tailscaleInstalled = (exitCode === 0)
       root.isRefreshing = false
       updateTailscaleStatus()
@@ -69,20 +66,10 @@ Item {
       var stdout = String(statusProcess.stdout.text || "").trim()
       var stderr = String(statusProcess.stderr.text || "").trim()
 
-      Logger.d("Tailscale", "statusProcess exited with code: " + exitCode)
-      Logger.d("Tailscale", "stdout length: " + stdout.length)
-      if (stdout.length > 0) {
-        Logger.d("Tailscale", "Status output: " + stdout.substring(0, 300))
-      }
-      if (stderr.length > 0) {
-        Logger.d("Tailscale", "stderr: " + stderr)
-      }
-
       if (exitCode === 0 && stdout && stdout.length > 0) {
         try {
           var data = JSON.parse(stdout)
           root.tailscaleRunning = data.BackendState === "Running"
-          Logger.d("Tailscale", "BackendState: " + data.BackendState + ", tailscaleRunning: " + root.tailscaleRunning)
 
           if (root.tailscaleRunning && data.Self && data.Self.TailscaleIPs && data.Self.TailscaleIPs.length > 0) {
             root.tailscaleIp = data.Self.TailscaleIPs[0]
@@ -175,7 +162,6 @@ Item {
   function toggleTailscale() {
     if (!root.tailscaleInstalled) return
 
-    Logger.d("Tailscale", "toggleTailscale called, current status: " + root.tailscaleRunning)
     root.isRefreshing = true
     if (root.tailscaleRunning) {
       root.lastToggleAction = "disconnect"
