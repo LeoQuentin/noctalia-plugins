@@ -35,20 +35,14 @@ Rectangle {
 
   radius: Style.radiusL
 
-  function getStatusIcon() {
-    if (!mainInstance?.tailscaleInstalled) return "network-off"
-    if (mainInstance?.tailscaleRunning) return "network"
-    return "network-off"
-  }
-
   RowLayout {
     id: contentRow
     anchors.centerIn: parent
     spacing: Style.marginS
     layoutDirection: Qt.LeftToRight
 
-    NIcon {
-      icon: getStatusIcon()
+    TailscaleIcon {
+      pointSize: Style.fontSizeL
       applyUiScale: false
       color: {
         if (mainInstance?.tailscaleRunning) return Color.mPrimary
