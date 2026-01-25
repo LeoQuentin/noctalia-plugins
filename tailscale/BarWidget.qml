@@ -20,7 +20,7 @@ Rectangle {
   readonly property var mainInstance: pluginApi?.mainInstance
 
   implicitWidth: {
-    if (mainInstance?.compactMode || !mainInstance?.tailscaleRunning) {
+    if ((mainInstance?.compactMode ?? false) || !(mainInstance?.tailscaleRunning ?? false)) {
       return Style.capsuleHeight
     }
     return contentRow.implicitWidth + Style.marginM * 2
@@ -42,24 +42,24 @@ Rectangle {
     TailscaleIcon {
       pointSize: Style.fontSizeL
       applyUiScale: false
-      crossed: !mainInstance?.tailscaleRunning
+      crossed: !(mainInstance?.tailscaleRunning ?? false)
       color: {
-        if (mainInstance?.tailscaleRunning) return Color.mPrimary
+        if (mainInstance?.tailscaleRunning ?? false) return Color.mPrimary
         return mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
       }
-      opacity: mainInstance?.isRefreshing ? 0.5 : 1.0
+      opacity: (mainInstance?.isRefreshing ?? false) ? 0.5 : 1.0
     }
 
     // Show details when not in compact mode and there's something to show
     ColumnLayout {
-      visible: !mainInstance?.compactMode && mainInstance?.tailscaleRunning && (mainInstance?.showIpAddress || mainInstance?.showPeerCount)
+      visible: !(mainInstance?.compactMode ?? false) && (mainInstance?.tailscaleRunning ?? false) && ((mainInstance?.showIpAddress ?? false) || (mainInstance?.showPeerCount ?? false))
       spacing: 2
       Layout.leftMargin: Style.marginXS
       Layout.rightMargin: Style.marginS
 
       // IP Address
       NText {
-        visible: mainInstance?.showIpAddress && mainInstance?.tailscaleIp
+        visible: (mainInstance?.showIpAddress ?? false) && (mainInstance?.tailscaleIp ?? false)
         text: mainInstance?.tailscaleIp || ""
         pointSize: Style.fontSizeXS
         color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
@@ -68,7 +68,7 @@ Rectangle {
 
       // Peer count
       NText {
-        visible: mainInstance?.showPeerCount
+        visible: mainInstance?.showPeerCount ?? false
         text: (mainInstance?.peerCount || 0) + " " + (pluginApi?.tr("panel.peers") || "peers")
         pointSize: Style.fontSizeXS
         color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
@@ -81,12 +81,12 @@ Rectangle {
 
     model: [
       {
-        "label": mainInstance?.tailscaleRunning 
+        "label": (mainInstance?.tailscaleRunning ?? false)
           ? (pluginApi?.tr("context.disconnect") || "Disconnect")
           : (pluginApi?.tr("context.connect") || "Connect"),
         "action": "toggle-tailscale",
-        "icon": mainInstance?.tailscaleRunning ? "plug-x" : "plug",
-        "enabled": mainInstance?.tailscaleInstalled
+        "icon": (mainInstance?.tailscaleRunning ?? false) ? "plug-x" : "plug",
+        "enabled": mainInstance?.tailscaleInstalled ?? false
       },
       {
         "label": pluginApi?.tr("actions.widget-settings") || "Widget Settings",
