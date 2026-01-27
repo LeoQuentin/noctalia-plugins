@@ -5,7 +5,7 @@ import qs.Commons
 import qs.Widgets
 
 // Bar Widget Component
-Rectangle {
+Item {
   id: root
 
   property var pluginApi: null
@@ -24,44 +24,47 @@ Rectangle {
   readonly property bool barIsVertical: barPosition === "left" || barPosition === "right"
   readonly property real barHeight: Style.getBarHeightForScreen(screen?.name)
 
-  implicitWidth: barIsVertical ? root.barHeight : contentRow.implicitWidth + Style.marginL * 2
-  implicitHeight: root.barHeight
+  readonly property real contentWidth: barIsVertical ? root.barHeight : contentRow.implicitWidth + Style.marginL * 2
+  readonly property real contentHeight: root.barHeight
 
-  color: bgColor
-  radius: !barIsVertical ? Style.radiusM : width * 0.5
+  implicitWidth: contentWidth
+  implicitHeight: contentHeight
 
-  RowLayout {
-    id: contentRow
-    anchors.centerIn: parent
-    spacing: Style.marginS
+  Rectangle {
+    id: visualCapsule
+    x: Style.pixelAlignCenter(parent.width, width)
+    y: Style.pixelAlignCenter(parent.height, height)
+    width: root.contentWidth
+    height: root.contentHeight
+    color: mouseArea.containsMouse ? Qt.lighter(root.bgColor, 1.1) : root.bgColor
+    radius: !barIsVertical ? Style.radiusM : width * 0.5
 
-    NIcon {
-      icon: "noctalia"
-      applyUiScale: false
-    }
+    RowLayout {
+      id: contentRow
+      anchors.centerIn: parent
+      spacing: Style.marginS
 
-    NText {
-      visible: !barIsVertical
-      text: root.message
-      color: Color.mOnPrimary
-      pointSize: Style.barFontSize
-      font.weight: Font.Medium
+      NIcon {
+        icon: "noctalia"
+        applyUiScale: false
+      }
+
+      NText {
+        visible: !barIsVertical
+        text: root.message
+        color: Color.mOnPrimary
+        pointSize: Style.barFontSize
+        font.weight: Font.Medium
+      }
     }
   }
 
   // Mouse area to open panel
   MouseArea {
+    id: mouseArea
     anchors.fill: parent
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
-
-    onEntered: {
-      root.color = Qt.lighter(root.bgColor, 1.1);
-    }
-
-    onExited: {
-      root.color = root.bgColor;
-    }
 
     onClicked: {
       if (pluginApi) {

@@ -6,7 +6,7 @@ import qs.Commons
 import qs.Services.UI
 import qs.Widgets
 
-Rectangle {
+Item {
     id: root
 
     property var pluginApi: null
@@ -33,7 +33,7 @@ Rectangle {
         Logger.d("RSS Feed", "RSS Feed BarWidget: Config changed");
         updateUnreadCount();
     }
-    
+
     onReadItemsChanged: {
         Logger.d("RSS Feed", "RSS Feed BarWidget: readItems changed, count:", readItems.length);
         updateUnreadCount();
@@ -146,15 +146,14 @@ Rectangle {
         _seenInitialUnreadSet = true;
     }
 
-    implicitWidth: Math.max(48, isVertical ? Style.capsuleHeight : contentWidth)
-    implicitHeight: Math.max(28, isVertical ? contentHeight : Style.capsuleHeight)
-    radius: Style.radiusM
-    color: Style.capsuleColor
-    border.color: Style.capsuleBorderColor
-    border.width: Style.capsuleBorderWidth
+    readonly property real visualContentWidth: rowLayout.implicitWidth + (unreadCount > 0 ? Style.marginM * 2 : Style.marginS)
+    readonly property real visualContentHeight: rowLayout.implicitHeight + (unreadCount > 0 ? Style.marginM * 2 : Style.marginS)
 
-    readonly property real contentWidth: rowLayout.implicitWidth + (unreadCount > 0 ? Style.marginM * 2 : Style.marginS)
-    readonly property real contentHeight: rowLayout.implicitHeight + (unreadCount > 0 ? Style.marginM * 2 : Style.marginS)
+    readonly property real contentWidth: Math.max(48, isVertical ? Style.capsuleHeight : visualContentWidth)
+    readonly property real contentHeight: Math.max(28, isVertical ? visualContentHeight : Style.capsuleHeight)
+
+    implicitWidth: contentWidth
+    implicitHeight: contentHeight
 
     // Timer for periodic updates
     Timer {
@@ -370,63 +369,75 @@ Rectangle {
 
 
 
-    RowLayout {
-        id: rowLayout
-        anchors.centerIn: parent
-        spacing: unreadCount > 0 ? Style.marginS : 0
+    Rectangle {
+        id: visualCapsule
+        x: Style.pixelAlignCenter(parent.width, width)
+        y: Style.pixelAlignCenter(parent.height, height)
+        width: root.contentWidth
+        height: root.contentHeight
+        radius: Style.radiusM
+        color: Style.capsuleColor
+        border.color: Style.capsuleBorderColor
+        border.width: Style.capsuleBorderWidth
 
-        NIcon {
-            icon: "rss"
-            pointSize: Style.barFontSize
-            color: error ? Color.mOnError : loading ? Color.mPrimary : Color.mOnSurface
-            
-            NumberAnimation on opacity {
-                running: loading
-                from: 0.3
-                to: 1.0
-                duration: 1000
-                loops: Animation.Infinite
-                easing.type: Easing.InOutQuad
-            }
-        }
+        RowLayout {
+            id: rowLayout
+            anchors.centerIn: parent
+            spacing: unreadCount > 0 ? Style.marginS : 0
 
-        Rectangle {
-            id: badgeRect
-            visible: unreadCount > 0
-            width: unreadCount > 0 ? (badgeText.implicitWidth + 8) : 0
-            height: unreadCount > 0 ? (badgeText.implicitHeight + 6) : 0
-            radius: height * 0.5
-            color: error ? Color.mError : Color.mPrimary
-            Layout.preferredWidth: width
-            Layout.preferredHeight: height
-
-            transform: Scale { id: badgeScale; xScale: 1; yScale: 1 }
-
-            NText {
-                id: badgeText
-                anchors.centerIn: parent
-                text: unreadCount > 99 ? "99+" : unreadCount.toString()
+            NIcon {
+                icon: "rss"
                 pointSize: Style.barFontSize
-                color: error ? Color.mOnError : Color.mOnPrimary
+                color: error ? Color.mOnError : loading ? Color.mPrimary : Color.mOnSurface
+
+                NumberAnimation on opacity {
+                    running: loading
+                    from: 0.3
+                    to: 1.0
+                    duration: 1000
+                    loops: Animation.Infinite
+                    easing.type: Easing.InOutQuad
+                }
             }
 
-            SequentialAnimation {
-                id: badgePulse
-                running: false
-                PropertyAnimation { target: badgeScale; property: "xScale"; to: 1.15; duration: 140; easing.type: Easing.InOutQuad }
-                PropertyAnimation { target: badgeScale; property: "yScale"; to: 1.15; duration: 140; easing.type: Easing.InOutQuad }
-                PauseAnimation { duration: 80 }
-                PropertyAnimation { target: badgeScale; property: "xScale"; to: 1.0; duration: 160; easing.type: Easing.InOutQuad }
-                PropertyAnimation { target: badgeScale; property: "yScale"; to: 1.0; duration: 160; easing.type: Easing.InOutQuad }
-            }
+            Rectangle {
+                id: badgeRect
+                visible: unreadCount > 0
+                width: unreadCount > 0 ? (badgeText.implicitWidth + 8) : 0
+                height: unreadCount > 0 ? (badgeText.implicitHeight + 6) : 0
+                radius: height * 0.5
+                color: error ? Color.mError : Color.mPrimary
+                Layout.preferredWidth: width
+                Layout.preferredHeight: height
 
-            Timer {
-                id: badgePulseDebounce
-                interval: 250
-                running: false
-                repeat: false
-                onTriggered: {
-                    if (badgePulse) badgePulse.restart();
+                transform: Scale { id: badgeScale; xScale: 1; yScale: 1 }
+
+                NText {
+                    id: badgeText
+                    anchors.centerIn: parent
+                    text: unreadCount > 99 ? "99+" : unreadCount.toString()
+                    pointSize: Style.barFontSize
+                    color: error ? Color.mOnError : Color.mOnPrimary
+                }
+
+                SequentialAnimation {
+                    id: badgePulse
+                    running: false
+                    PropertyAnimation { target: badgeScale; property: "xScale"; to: 1.15; duration: 140; easing.type: Easing.InOutQuad }
+                    PropertyAnimation { target: badgeScale; property: "yScale"; to: 1.15; duration: 140; easing.type: Easing.InOutQuad }
+                    PauseAnimation { duration: 80 }
+                    PropertyAnimation { target: badgeScale; property: "xScale"; to: 1.0; duration: 160; easing.type: Easing.InOutQuad }
+                    PropertyAnimation { target: badgeScale; property: "yScale"; to: 1.0; duration: 160; easing.type: Easing.InOutQuad }
+                }
+
+                Timer {
+                    id: badgePulseDebounce
+                    interval: 250
+                    running: false
+                    repeat: false
+                    onTriggered: {
+                        if (badgePulse) badgePulse.restart();
+                    }
                 }
             }
         }

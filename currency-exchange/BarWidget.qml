@@ -5,7 +5,7 @@ import qs.Commons
 import qs.Services.UI
 import qs.Widgets
 
-Rectangle {
+Item {
   id: root
 
   // Bar orientation
@@ -14,7 +14,7 @@ Rectangle {
 
   // Configuration
   property var cfg: pluginApi?.pluginSettings || ({})
-  readonly property real contentWidth: {
+  readonly property real visualContentWidth: {
     var iconWidth = Style.toOdd(capsuleHeight * 0.4);
     if (displayMode === "icon") {
       return iconWidth + Style.marginM * 2;
@@ -71,16 +71,11 @@ Rectangle {
   }
   property string widgetId: ""
 
-  border.color: Style.capsuleBorderColor
-  border.width: Style.capsuleBorderWidth
+  readonly property real contentWidth: isVertical ? capsuleHeight : visualContentWidth
+  readonly property real contentHeight: capsuleHeight
 
-  // Styling
-  color: Style.capsuleColor
-  implicitHeight: capsuleHeight
-
-  // Sizing
-  implicitWidth: isVertical ? capsuleHeight : contentWidth
-  radius: Style.radiusM
+  implicitWidth: contentWidth
+  implicitHeight: contentHeight
 
   // Fetch rates on load
   Component.onCompleted: {
@@ -89,76 +84,91 @@ Rectangle {
     }
   }
 
-  // Horizontal layout
-  RowLayout {
-    anchors.fill: parent
-    anchors.leftMargin: Style.marginS
-    anchors.rightMargin: Style.marginS
-    spacing: Style.marginS
-    visible: !isVertical
+  Rectangle {
+    id: visualCapsule
+    x: Style.pixelAlignCenter(parent.width, width)
+    y: Style.pixelAlignCenter(parent.height, height)
+    width: root.contentWidth
+    height: root.contentHeight
+    color: mouseArea.containsMouse ? Color.mHover : Style.capsuleColor
+    radius: Style.radiusM
+    border.color: Style.capsuleBorderColor
+    border.width: Style.capsuleBorderWidth
 
-    // Loading spinner
-    NIcon {
-      Layout.alignment: Qt.AlignVCenter
-      color: Color.mOnSurfaceVariant
-      icon: "loader"
-      visible: loading
+    // Horizontal layout
+    RowLayout {
+      anchors.fill: parent
+      anchors.leftMargin: Style.marginS
+      anchors.rightMargin: Style.marginS
+      spacing: Style.marginS
+      visible: !isVertical
 
-      RotationAnimator on rotation {
-        duration: 1000
-        from: 0
-        loops: Animation.Infinite
-        to: 360
+      // Loading spinner
+      NIcon {
+        Layout.alignment: Qt.AlignVCenter
+        color: Color.mOnSurfaceVariant
+        icon: "loader"
+        visible: loading
+
+        RotationAnimator on rotation {
+          duration: 1000
+          from: 0
+          loops: Animation.Infinite
+          to: 360
+        }
+      }
+      NIcon {
+        Layout.alignment: Qt.AlignVCenter
+        applyUiScale: false
+        icon: "currency-dollar"
+        visible: !loading
+        color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
+      }
+      NText {
+        id: rateText
+
+        Layout.alignment: Qt.AlignVCenter
+        applyUiScale: false
+        color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
+        font.weight: Font.Medium
+        pointSize: Style.getBarFontSizeForScreen(screen?.name)
+        text: displayText
+        visible: displayMode !== "icon"
       }
     }
-    NIcon {
-      Layout.alignment: Qt.AlignVCenter
-      applyUiScale: false
-      icon: "currency-dollar"
-      visible: !loading
-    }
-    NText {
-      id: rateText
 
-      Layout.alignment: Qt.AlignVCenter
-      applyUiScale: false
-      color: Color.mOnSurface
-      font.weight: Font.Medium
-      pointSize: Style.getBarFontSizeForScreen(screen?.name)
-      text: displayText
-      visible: displayMode !== "icon"
-    }
-  }
+    // Vertical layout - icon only option
+    ColumnLayout {
+      anchors.fill: parent
+      spacing: Style.marginS
+      visible: isVertical
 
-  // Vertical layout - icon only option
-  ColumnLayout {
-    anchors.fill: parent
-    spacing: Style.marginS
-    visible: isVertical
+      // Loading spinner
+      NIcon {
+        Layout.alignment: Qt.AlignVCenter
+        color: Color.mOnSurfaceVariant
+        icon: "loader"
+        visible: loading
 
-    // Loading spinner
-    NIcon {
-      Layout.alignment: Qt.AlignVCenter
-      color: Color.mOnSurfaceVariant
-      icon: "loader"
-      visible: loading
-
-      RotationAnimator on rotation {
-        duration: 1000
-        from: 0
-        loops: Animation.Infinite
-        to: 360
+        RotationAnimator on rotation {
+          duration: 1000
+          from: 0
+          loops: Animation.Infinite
+          to: 360
+        }
       }
-    }
-    NIcon {
-      Layout.alignment: Qt.AlignHCenter
-      icon: "currency-dollar"
-      visible: !loading
+      NIcon {
+        Layout.alignment: Qt.AlignHCenter
+        icon: "currency-dollar"
+        visible: !loading
+        color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
+      }
     }
   }
 
   // Mouse interaction
   MouseArea {
+    id: mouseArea
     acceptedButtons: Qt.LeftButton
     anchors.fill: parent
     cursorShape: Qt.PointingHandCursor

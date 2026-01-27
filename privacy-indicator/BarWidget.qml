@@ -9,7 +9,7 @@ import qs.Modules.Bar.Extras
 import qs.Services.UI
 import qs.Widgets
 
-Rectangle {
+Item {
   id: root
 
   property var pluginApi: null
@@ -44,12 +44,14 @@ Rectangle {
   readonly property bool isVisible: !hideInactive || micActive || camActive || scrActive
 
   property real margins: removeMargins ? 0 : Style.marginM * 2
-  implicitWidth: isVertical ? Style.capsuleHeight : Math.round(layout.implicitWidth + margins)
-  implicitHeight: isVertical ? Math.round(layout.implicitHeight + margins) : Style.capsuleHeight
+
+  readonly property real contentWidth: isVertical ? Style.capsuleHeight : Math.round(layout.implicitWidth + margins)
+  readonly property real contentHeight: isVertical ? Math.round(layout.implicitHeight + margins) : Style.capsuleHeight
+
+  implicitWidth: contentWidth
+  implicitHeight: contentHeight
 
   Layout.alignment: Qt.AlignVCenter
-  radius: Style.radiusM
-  color: Style.capsuleColor
   visible: root.isVisible
   opacity: root.isVisible ? 1.0 : 0.0
 
@@ -221,6 +223,52 @@ Rectangle {
     return parts.length > 0 ? parts.join("\n") : "";
   }
 
+  Rectangle {
+    id: visualCapsule
+    x: Style.pixelAlignCenter(parent.width, width)
+    y: Style.pixelAlignCenter(parent.height, height)
+    width: root.contentWidth
+    height: root.contentHeight
+    radius: Style.radiusM
+    color: Style.capsuleColor
+
+    Item {
+      id: layout
+
+      anchors.verticalCenter: parent.verticalCenter
+      anchors.horizontalCenter: parent.horizontalCenter
+
+      implicitWidth: iconsLayout.implicitWidth
+      implicitHeight: iconsLayout.implicitHeight
+
+      GridLayout {
+        id: iconsLayout
+
+        columns: root.isVertical ? 1 : 3
+        rows: root.isVertical ? 3 : 1
+
+        rowSpacing: root.iconSpacing
+        columnSpacing: root.iconSpacing
+
+        NIcon {
+          visible: micActive || !root.hideInactive
+          icon: micActive ? "microphone" : "microphone-off"
+          color: root.micColor
+        }
+        NIcon {
+          visible: camActive || !root.hideInactive
+          icon: camActive ? "camera" : "camera-off"
+          color: root.camColor
+        }
+        NIcon {
+          visible: scrActive || !root.hideInactive
+          icon: scrActive ? "screen-share" : "screen-share-off"
+          color: root.scrColor
+        }
+      }
+    }
+  }
+
   MouseArea {
     anchors.fill: parent
     acceptedButtons: Qt.RightButton
@@ -233,41 +281,5 @@ Rectangle {
       }
     }
     onExited: TooltipService.hide()
-  }
-
-  Item {
-      id: layout
-
-      anchors.verticalCenter: parent.verticalCenter
-      anchors.horizontalCenter: parent.horizontalCenter
-
-      implicitWidth: iconsLayout.implicitWidth
-      implicitHeight: iconsLayout.implicitHeight
-
-      GridLayout {
-          id: iconsLayout
-
-          columns: root.isVertical ? 1 : 3
-          rows: root.isVertical ? 3 : 1
-
-          rowSpacing: root.iconSpacing
-          columnSpacing: root.iconSpacing
-
-          NIcon {
-              visible: micActive || !root.hideInactive
-              icon: micActive ? "microphone" : "microphone-off"
-              color: root.micColor
-          }
-          NIcon {
-              visible: camActive || !root.hideInactive
-              icon: camActive ? "camera" : "camera-off"
-              color: root.camColor
-          }
-          NIcon {
-              visible: scrActive || !root.hideInactive
-              icon: scrActive ? "screen-share" : "screen-share-off"
-              color: root.scrColor
-          }
-      }
   }
 }
