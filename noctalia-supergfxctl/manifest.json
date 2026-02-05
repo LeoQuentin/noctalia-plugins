@@ -1,12 +1,12 @@
 {
-	"id": "noctalia-supergfxctl",
-	"name": "SuperGFX Control",
+	"id": "supergfxctl-patched",
+	"name": "SuperGFX Control (patched)",
 	"version": "0.0.3",
 	"minNoctaliaVersion": "3.8.2",
-	"author": "cod3d <cod3ddot@proton.me>",
+	"author": "Leo Quentin Bækholt (original by cod3d <cod3ddot@proton.me>)",
 	"license": "MIT",
-	"repository": "https://github.com/noctalia-dev/noctalia-plugins",
-	"description": "GPU control with supergfxctl for noctalia.",
+	"repository": "https://github.com/LeoQuentin/noctalia-plugins",
+	"description": "GPU control with supergfxctl, patched for config-edit switching on ASUS hardware.",
 	"tags": ["Bar", "Panel", "System", "Gaming"],
 	"entryPoints": {
 		"main": "src/Main.qml",
