@@ -162,6 +162,10 @@ QtObject {
         return sgfx.setMode(mode);
     }
 
+    function getRequiredAction(targetMode: int): int {
+        return sgfx.requiredAction(targetMode, sgfx.mode);
+    }
+
     function log(...msg): void {
         if (root.pluginSettings.debug) {
             Logger.i(root.pluginId, `v${pluginVersion}/${version}`, ...msg);

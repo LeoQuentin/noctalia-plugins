@@ -30,6 +30,8 @@ Item {
     readonly property int contentPreferredWidth: 420 * Style.uiScaleRatio
     readonly property int contentPreferredHeight: 170 * Style.uiScaleRatio
 
+    property int confirmingMode: Main.SGFXMode.None
+
     anchors.fill: parent
 
     component GPUButton: Rectangle {
@@ -173,7 +175,7 @@ Item {
         TapHandler {
             enabled: gpuButton._interactive
             gesturePolicy: TapHandler.ReleaseWithinBounds
-            onTapped: root.pluginCore?.setMode(gpuButton.mode)
+            onTapped: root.confirmingMode = gpuButton.mode
         }
 
         HoverHandler {
@@ -287,6 +289,170 @@ Item {
                 }
                 GPUButton {
                     mode: Main.SGFXMode.Vfio
+                }
+            }
+        }
+    }
+
+    // Confirmation overlay
+    Rectangle {
+        id: confirmOverlay
+
+        readonly property int targetAction: {
+            if (root.confirmingMode === Main.SGFXMode.None) return Main.SGFXAction.Nothing;
+            return root.pluginCore?.getRequiredAction(root.confirmingMode) ?? Main.SGFXAction.Nothing;
+        }
+
+        anchors.fill: parent
+        z: 10
+        color: Qt.rgba(0, 0, 0, 0.5)
+        visible: opacity > 0
+        opacity: root.confirmingMode !== Main.SGFXMode.None ? 1.0 : 0.0
+
+        Behavior on opacity {
+            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+        }
+
+        // Click background to cancel
+        TapHandler {
+            onTapped: root.confirmingMode = Main.SGFXMode.None
+        }
+
+        Rectangle {
+            anchors.centerIn: parent
+            width: parent.width - Style.marginL * 4
+            height: confirmLayout.implicitHeight + Style.marginL * 2
+            radius: Style.iRadiusS
+            color: Color.mSurface
+            border.width: Style.borderM
+            border.color: Color.mPrimary
+
+            // Block clicks from passing through
+            TapHandler { }
+
+            ColumnLayout {
+                id: confirmLayout
+                anchors.centerIn: parent
+                width: parent.width - Style.marginL * 2
+                spacing: Style.marginM
+
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: Style.marginXS
+
+                    NIcon {
+                        icon: root.pluginCore?.getModeIcon(root.confirmingMode) ?? ""
+                        pointSize: Style.fontSizeXXL
+                        color: Color.mPrimary
+                    }
+
+                    NText {
+                        text: `Switch to ${root.pluginCore?.getModeLabel(root.confirmingMode) ?? ""}?`
+                        pointSize: Style.fontSizeL
+                        font.weight: Style.fontWeightBold
+                        color: Color.mOnSurface
+                    }
+                }
+
+                NText {
+                    visible: confirmOverlay.targetAction !== Main.SGFXAction.Nothing
+                    Layout.alignment: Qt.AlignHCenter
+                    text: `Requires ${root.pluginCore?.getActionLabel(confirmOverlay.targetAction) ?? ""}`
+                    pointSize: Style.fontSizeM
+                    color: Color.mOutline
+                }
+
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: Style.marginM
+
+                    // Cancel button
+                    Rectangle {
+                        implicitWidth: cancelText.implicitWidth + Style.marginL * 2
+                        implicitHeight: cancelText.implicitHeight + Style.marginM * 2
+                        radius: Style.iRadiusS
+                        color: cancelHover.hovered ? Qt.lighter(Color.mSurfaceVariant, 1.1) : "transparent"
+                        border.width: Style.borderM
+                        border.color: cancelHover.hovered ? Color.mPrimary : Color.mOutline
+
+                        Behavior on color {
+                            ColorAnimation { duration: Style.animationFast; easing.type: Easing.OutCubic }
+                        }
+
+                        Behavior on border.color {
+                            ColorAnimation { duration: Style.animationFast; easing.type: Easing.OutCubic }
+                        }
+
+                        NText {
+                            id: cancelText
+                            anchors.centerIn: parent
+                            text: "Cancel"
+                            pointSize: Style.fontSizeM
+                            color: Color.mOnSurface
+                        }
+
+                        TapHandler {
+                            gesturePolicy: TapHandler.ReleaseWithinBounds
+                            onTapped: root.confirmingMode = Main.SGFXMode.None
+                        }
+
+                        HoverHandler {
+                            id: cancelHover
+                            cursorShape: Qt.PointingHandCursor
+                        }
+                    }
+
+                    // Confirm button
+                    Rectangle {
+                        implicitWidth: switchContent.implicitWidth + Style.marginL * 2
+                        implicitHeight: switchContent.implicitHeight + Style.marginM * 2
+                        radius: Style.iRadiusS
+                        color: switchHover.hovered ? Color.mTertiary : Color.mPrimary
+
+                        Behavior on color {
+                            ColorAnimation { duration: Style.animationFast; easing.type: Easing.OutCubic }
+                        }
+
+                        RowLayout {
+                            id: switchContent
+                            anchors.centerIn: parent
+                            spacing: Style.marginXS
+
+                            NIcon {
+                                icon: root.pluginCore?.getModeIcon(root.confirmingMode) ?? ""
+                                pointSize: Style.fontSizeM
+                                color: switchHover.hovered ? Color.mOnTertiary : Color.mOnPrimary
+
+                                Behavior on color {
+                                    ColorAnimation { duration: Style.animationFast; easing.type: Easing.OutCubic }
+                                }
+                            }
+
+                            NText {
+                                text: "Switch"
+                                pointSize: Style.fontSizeM
+                                font.weight: Style.fontWeightBold
+                                color: switchHover.hovered ? Color.mOnTertiary : Color.mOnPrimary
+
+                                Behavior on color {
+                                    ColorAnimation { duration: Style.animationFast; easing.type: Easing.OutCubic }
+                                }
+                            }
+                        }
+
+                        TapHandler {
+                            gesturePolicy: TapHandler.ReleaseWithinBounds
+                            onTapped: {
+                                root.pluginCore?.setMode(root.confirmingMode);
+                                root.confirmingMode = Main.SGFXMode.None;
+                            }
+                        }
+
+                        HoverHandler {
+                            id: switchHover
+                            cursorShape: Qt.PointingHandCursor
+                        }
+                    }
                 }
             }
         }
