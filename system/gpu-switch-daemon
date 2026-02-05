@@ -18,6 +18,7 @@ sed -i "s/\"mode\": \"$CURRENT\"/\"mode\": \"$TARGET\"/" "$CONF"
 
 echo "$TARGET"
 
-if [[ "${2:-}" == "reboot" ]]; then
-    systemctl reboot
-fi
+case "${2:-none}" in
+    reboot)  systemctl reboot ;;
+    logout)  loginctl terminate-session "${XDG_SESSION_ID:-}" 2>/dev/null || true ;;
+esac

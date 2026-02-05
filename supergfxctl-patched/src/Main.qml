@@ -227,8 +227,9 @@ QtObject {
 
     function executeAction(action: int): void {
         // Reboot is handled by the script (runs as root via pkexec).
-        // Logout is handled here via loginctl.
-        if (action === Main.SGFXAction.Logout) {
+        // Logout is handled here since pkexec runs as root without user session context.
+        const actionNames = ["logout", "reboot", "switch-integrated", "egpu-disable", "none"];
+        if (actionNames[action] === "logout") {
             actionProc.command = ["bash", "-c", "loginctl terminate-session $XDG_SESSION_ID"];
             actionProc.running = true;
         }
@@ -379,12 +380,11 @@ QtObject {
             if (root.pluginSettings.supergfxctl.patchPending) {
                 pendingMode = modeEnum;
             }
-            const action = requiredAction(modeEnum, mode);
-            const cmd = ["pkexec", "/usr/local/bin/gpu-switch-daemon", modeEnumReversed[modeEnum]];
-            if (action === Main.SGFXAction.Reboot) {
-                cmd.push("reboot");
-            }
-            setModeProc.command = cmd;
+            // Map action enum index to string. Avoids QML === type coercion issues with enums.
+            // Enum order: Logout=0, Reboot=1, SwitchToIntegrated=2, AsusEgpuDisable=3, Nothing=4
+            const actionNames = ["logout", "reboot", "switch-integrated", "egpu-disable", "none"];
+            const actionStr = actionNames[requiredAction(modeEnum, mode)] ?? "none";
+            setModeProc.command = ["pkexec", "/usr/local/bin/gpu-switch-daemon", modeEnumReversed[modeEnum], actionStr];
             setModeProc.running = true;
 
             if (root.debug) {
