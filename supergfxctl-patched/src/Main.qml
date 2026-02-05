@@ -223,6 +223,21 @@ QtObject {
         }
     }
 
+    readonly property Process actionProc: Process {}
+
+    function executeAction(action: int): void {
+        switch (action) {
+        case Main.SGFXAction.Reboot:
+            actionProc.command = ["systemctl", "reboot"];
+            actionProc.running = true;
+            break;
+        case Main.SGFXAction.Logout:
+            actionProc.command = ["hyprctl", "dispatch", "exit"];
+            actionProc.running = true;
+            break;
+        }
+    }
+
     readonly property Process setModeProc: Process {
         stderr: StdioCollector {
             onStreamFinished: {
@@ -238,6 +253,7 @@ QtObject {
             if (root.pluginSettings.supergfxctl.patchPending) {
                 if (exitCode === 0) {
                     root.sgfx.pendingAction = root.sgfx.requiredAction(root.sgfx.pendingMode, root.sgfx.mode);
+                    root.executeAction(root.sgfx.pendingAction);
                 } else {
                     root.sgfx.pendingMode = Main.SGFXMode.None;
                 }

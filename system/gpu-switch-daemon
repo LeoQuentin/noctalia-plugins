@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # gpu-switch-daemon — Non-interactive GPU mode switch for use with pkexec.
-# Edits /etc/supergfxd.conf and restarts supergfxd.
+# Edits /etc/supergfxd.conf (takes effect after reboot).
 # Usage: gpu-switch-daemon <TargetMode>
 # Where TargetMode is one of: Integrated, Hybrid, AsusMuxDgpu, NvidiaNoModeset, Vfio, AsusEgpu
 
@@ -16,7 +16,6 @@ if [[ "$CURRENT" == "$TARGET" ]]; then
 fi
 
 sed -i "s/\"mode\": \"$CURRENT\"/\"mode\": \"$TARGET\"/" "$CONF"
-systemctl restart supergfxd
 
 echo "$TARGET"
 exit 0
