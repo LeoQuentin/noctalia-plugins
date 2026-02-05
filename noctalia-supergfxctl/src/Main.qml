@@ -317,13 +317,13 @@ QtObject {
         // or give the user ability to configure actions
         readonly property var actionMatrix: ({
                 [Main.SGFXMode.Hybrid]: ({
-                        [Main.SGFXMode.Integrated]: Main.SGFXAction.Logout,
+                        [Main.SGFXMode.Integrated]: Main.SGFXAction.Reboot,
                         [Main.SGFXMode.AsusEgpu]: Main.SGFXAction.Logout,
                         [Main.SGFXMode.AsusMuxDgpu]: Main.SGFXAction.Logout,
                         [Main.SGFXMode.Vfio]: Main.SGFXAction.SwitchToIntegrated
                     }),
                 [Main.SGFXMode.Integrated]: ({
-                        [Main.SGFXMode.Hybrid]: Main.SGFXAction.Logout,
+                        [Main.SGFXMode.Hybrid]: Main.SGFXAction.Reboot,
                         [Main.SGFXMode.AsusEgpu]: Main.SGFXAction.Logout,
                         [Main.SGFXMode.AsusMuxDgpu]: Main.SGFXAction.Reboot
                     }),
@@ -363,7 +363,7 @@ QtObject {
             if (root.pluginSettings.supergfxctl.patchPending) {
                 pendingMode = modeEnum;
             }
-            setModeProc.command = ["supergfxctl", "--mode", modeEnumReversed[modeEnum]];
+            setModeProc.command = ["pkexec", "/usr/local/bin/gpu-switch-daemon", modeEnumReversed[modeEnum]];
             setModeProc.running = true;
 
             if (root.debug) {
