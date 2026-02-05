@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "plugins": [
+    {
+      "id": "supergfxctl-patched",
+      "name": "SuperGFX Control (patched)",
+      "version": "0.0.3",
+      "official": false,
+      "author": "Leo Quentin Bækholt (original by cod3d)",
+      "description": "GPU control with supergfxctl, patched for config-edit switching on ASUS hardware.",
+      "repository": "https://github.com/LeoQuentin/noctalia-plugins",
+      "minNoctaliaVersion": "3.8.2",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel",
+        "System",
+        "Gaming"
+      ],
+      "lastUpdated": "2026-02-05T00:00:00+01:00"
+    }
+  ]
+}
