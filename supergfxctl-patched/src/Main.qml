@@ -226,15 +226,11 @@ QtObject {
     readonly property Process actionProc: Process {}
 
     function executeAction(action: int): void {
-        switch (action) {
-        case Main.SGFXAction.Reboot:
-            actionProc.command = ["systemctl", "reboot"];
+        // Reboot is handled by the script (runs as root via pkexec).
+        // Logout is handled here via loginctl.
+        if (action === Main.SGFXAction.Logout) {
+            actionProc.command = ["bash", "-c", "loginctl terminate-session $XDG_SESSION_ID"];
             actionProc.running = true;
-            break;
-        case Main.SGFXAction.Logout:
-            actionProc.command = ["hyprctl", "dispatch", "exit"];
-            actionProc.running = true;
-            break;
         }
     }
 
@@ -383,7 +379,12 @@ QtObject {
             if (root.pluginSettings.supergfxctl.patchPending) {
                 pendingMode = modeEnum;
             }
-            setModeProc.command = ["pkexec", "/usr/local/bin/gpu-switch-daemon", modeEnumReversed[modeEnum]];
+            const action = requiredAction(modeEnum, mode);
+            const cmd = ["pkexec", "/usr/local/bin/gpu-switch-daemon", modeEnumReversed[modeEnum]];
+            if (action === Main.SGFXAction.Reboot) {
+                cmd.push("reboot");
+            }
+            setModeProc.command = cmd;
             setModeProc.running = true;
 
             if (root.debug) {
